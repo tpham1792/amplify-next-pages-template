@@ -1,3 +1,7 @@
+//////////////////////////////////////////
+import { Authenticator } from '@aws-amplify/ui-react'
+import '@aws-amplify/ui-react/styles.css'
+///////////////////////////////////////////
 import { useState, useEffect } from "react";
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "@/amplify/data/resource";
@@ -23,31 +27,41 @@ export default function App() {
     });
   }
 
-  ///////////////////////////////////  
   function deleteTodo(id: string) {
-    client.models.Todo.delete({ id })
+    client.models.Todo.delete({ id }).then(() => {
+      // After successfully deleting, update the todo list
+      listTodos();
+    }).catch(error => {
+      console.error("Error deleting todo:", error);
+    });
   }
-  ///////////////////////////////////
-  return (
-    <main>
-      <h1>My todos</h1>
-      <button onClick={createTodo}>+ new</button>
-      <ul>
-        {todos.map((todo) => (
-          <li 
-          onClick={() => deleteTodo(todo.id)} 
-          key={todo.id}>
-          {todo.content}
-          </li>
-        ))}
-      </ul>
-      <div>
-        🥳 App successfully hosted. Try creating a new todo.
-        <br />
-        <a href="https://docs.amplify.aws/gen2/start/quickstart/nextjs-pages-router/">
-          Review next steps of this tutorial.
-        </a>
-      </div>
-    </main>
+
+  return ( 
+    <Authenticator>
+      {({ signOut, user }) => (
+        <main>
+          <h1>My todos</h1>
+          <button onClick={createTodo}>+ new</button>
+          <ul>
+            {todos.map((todo) => (
+              <li 
+                onClick={() => deleteTodo(todo.id)} 
+                key={todo.id}
+              >
+                {todo.content}
+              </li>
+            ))}
+          </ul>
+          <div>
+            🥳 App successfully hosted. Try creating a new todo.
+            <br />
+            <a href="https://docs.amplify.aws/gen2/start/quickstart/nextjs-pages-router/">
+              Review next steps of this tutorial.
+            </a>
+          </div>
+          <button onClick={signOut}>Sign out</button>
+        </main>
+      )} 
+    </Authenticator> 
   );
 }
